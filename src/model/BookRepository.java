@@ -32,6 +32,20 @@ public class BookRepository {
     return null;
   }
 
+  public ArrayList<Book> searchBookByTitle(String title) {
+
+    ArrayList<Book> result = new ArrayList<>();
+
+    for (Book book : books) {
+
+      if (book.getTitle().contains(title)) {
+        result.add(book);
+      }
+    }
+
+    return result;
+  }
+
   public ArrayList<Book> getBooks() {
     return books;
   }
