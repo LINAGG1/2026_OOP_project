@@ -21,7 +21,16 @@ public class LibraryController {
     public boolean returnBook(String userId, String bookId) { //도서 반납 요청 처리
         return repository.returnBook(userId, bookId);
     }
+   
     public ArrayList<Book> searchBookByTitle(String title) { //책 제목으로 도서를 검색
         return repository.searchBookByTitle(title);
+    }
+    
+    public ArrayList<Book> searchBookByAuthor(String author) { //저자로 도서 검색
+        return repository.searchBookByAuthor(author);
+    }
+
+    public Book searchBookByBookId(String bookId) { //도서 ID로 도서 검색
+        return repository.searchBookByBookId(bookId);
     }
 }
