@@ -3,51 +3,92 @@ package model;
 import java.util.ArrayList;
 
 public class BookRepository {
+
   private ArrayList<Book> books;
   private ArrayList<User> users;
 
   public BookRepository() {
-    this.books = new ArrayList<>();
-    this.users = new ArrayList<>();
-  }
+      books = new ArrayList<>();
+      users = new ArrayList<>();
+    }
+
+    // =====================
+    // 도서 관리
+    // =====================
 
   public void addBook(Book book) {
     books.add(book);
   }
 
   public void removeBook(String bookId) {
+
     Book book = findBookById(bookId);
 
-    if (book != null) {
-      books.remove(book);
-    }
+      if (book != null) {
+        books.remove(book);
+      }
   }
 
   public Book findBookById(String bookId) {
+
     for (Book book : books) {
+
       if (book.getBookId().equals(bookId)) {
         return book;
+        }
       }
+
+      return null;
     }
-    return null;
-  }
 
   public ArrayList<Book> searchBookByTitle(String title) {
 
     ArrayList<Book> result = new ArrayList<>();
 
-    for (Book book : books) {
+      for (Book book : books) {
 
-      if (book.getTitle().contains(title)) {
-        result.add(book);
+        if (book.getTitle().contains(title)) {
+          result.add(book);
+        }
       }
+
+      return result;
     }
 
-    return result;
+  public ArrayList<Book> searchBookByAuthor(String author) {
+
+    ArrayList<Book> result = new ArrayList<>();
+
+      for (Book book : books) {
+
+        if (book.getAuthor().contains(author)) {
+          result.add(book);
+        }
+      }
+
+      return result;
+    }
+
+  public Book searchBookByBookId(String bookId) {
+    return findBookById(bookId);
   }
 
   public ArrayList<Book> getBooks() {
     return books;
+  }
+
+    // =====================
+    // 회원 관리
+    // =====================
+
+  public boolean registerUser(User user) {
+
+    if (findUserById(user.getUserId()) != null) {
+      return false;
+    }
+
+    users.add(user);
+    return true;
   }
 
   public void addUser(User user) {
@@ -55,11 +96,14 @@ public class BookRepository {
   }
 
   public User findUserById(String userId) {
+
     for (User user : users) {
+
       if (user.getUserId().equals(userId)) {
         return user;
       }
     }
+
     return null;
   }
 
@@ -67,16 +111,28 @@ public class BookRepository {
     return users;
   }
 
-  // 로그인 기능
+    // =====================
+    // 로그인
+    // =====================
+
   public User login(String userId, String password) {
+
     User user = findUserById(userId);
-    if (user != null && user.checkPassword(password)) {
-      return user;
-    }
+
+      if (user != null && user.checkPassword(password)) {
+
+        return user;
+      }
+
     return null;
   }
 
+    // =====================
+    // 대여
+    // =====================
+
   public boolean borrowBook(String userId, String bookId) {
+
     User user = findUserById(userId);
     Book book = findBookById(bookId);
 
@@ -89,13 +145,18 @@ public class BookRepository {
     }
 
     book.setBorrowed(true);
+
     user.borrowBook(book);
 
     return true;
   }
 
-  // 반납 기능
+    // =====================
+    // 반납
+    // =====================
+
   public boolean returnBook(String userId, String bookId) {
+
     User user = findUserById(userId);
     Book book = findBookById(bookId);
 
@@ -104,9 +165,9 @@ public class BookRepository {
     }
 
     book.setBorrowed(false);
+
     user.returnBook(book);
 
     return true;
   }
-  
 }

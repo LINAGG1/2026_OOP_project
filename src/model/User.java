@@ -9,7 +9,8 @@ public class User {
     private String name;
     private String role;
 
-    private ArrayList<Book> borrowedBooks;
+    // 현재 대여 중 + 과거 대여 이력 모두 저장
+    private ArrayList<BorrowRecord> borrowRecords;
 
     // 생성자
     public User(String userId, String password, String name, String role) {
@@ -17,10 +18,11 @@ public class User {
         this.password = password;
         this.name = name;
         this.role = role;
-        this.borrowedBooks = new ArrayList<>();
+
+        this.borrowRecords = new ArrayList<>();
     }
 
-    // 로그인 비밀번호 확인 - 보안 상 없으면 좋음
+    // 로그인 비밀번호 확인
     public boolean checkPassword(String password) {
         return this.password.equals(password);
     }
@@ -30,10 +32,17 @@ public class User {
         return role.equalsIgnoreCase("ADMIN");
     }
 
+    // 현재 대여 중인 책이 있는지 확인
     public boolean hasBorrowedBooks() {
-        return !borrowedBooks.isEmpty();
-    }
 
+        for (BorrowRecord record : borrowRecords) {
+            if (!record.isReturned()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     public String getUserId() {
         return userId;
@@ -51,18 +60,57 @@ public class User {
         return role;
     }
 
+    // 전체 대여 이력 반환
+    public ArrayList<BorrowRecord> getBorrowRecords() {
+        return borrowRecords;
+    }
+
+    // 현재 대여 중인 도서 목록 반환
     public ArrayList<Book> getBorrowedBooks() {
-        return borrowedBooks;
+
+        ArrayList<Book> books = new ArrayList<>();
+
+        for (BorrowRecord record : borrowRecords) {
+
+            if (!record.isReturned()) {
+                books.add(record.getBook());
+            }
+        }
+
+        return books;
     }
 
-
+    // 도서 대여
     public void borrowBook(Book book) {
-        borrowedBooks.add(book);
+        borrowRecords.add(new BorrowRecord(book));
     }
 
-
+    // 도서 반납
     public void returnBook(Book book) {
-        borrowedBooks.remove(book);
+
+        for (BorrowRecord record : borrowRecords) {
+
+            if (record.getBook().getBookId().equals(book.getBookId())
+                    && !record.isReturned()) {
+
+                record.returnBook();
+                break;
+            }
+        }
+    }
+
+    // 현재 대여 중인 도서 수
+    public int getCurrentBorrowCount() {
+
+        int count = 0;
+
+        for (BorrowRecord record : borrowRecords) {
+            if (!record.isReturned()) {
+                count++;
+            }
+        }
+
+        return count;
     }
 
     @Override

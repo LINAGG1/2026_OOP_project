@@ -14,6 +14,13 @@ public class Book {
         this.borrowed = borrowed;
     }
 
+    public Book(String bookId, String title, String author) {
+        this.bookId = bookId;
+        this.title = title;
+        this.author = author;
+        this.borrowed = false;
+    }
+
     public String getBookId() {
         return bookId;
     }
