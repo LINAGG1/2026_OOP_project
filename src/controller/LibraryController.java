@@ -1,6 +1,8 @@
 package controller;
 
+import java.util.ArrayList;
 import model.BookRepository;
+import model.Book;
 /*
 일반 사용자의 도서 대여 및 반납 기능을 처리하는 Controller 
 */
@@ -18,5 +20,8 @@ public class LibraryController {
 
     public boolean returnBook(String userId, String bookId) { //도서 반납 요청 처리
         return repository.returnBook(userId, bookId);
+    }
+    public ArrayList<Book> searchBookByTitle(String title) { //책 제목으로 도서를 검색
+        return repository.searchBookByTitle(title);
     }
 }
