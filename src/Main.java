@@ -163,6 +163,11 @@ public class Main {
 
                 BookSearchView searchView = new BookSearchView();
                 MyLibView myLibView = new MyLibView();
+                myLibView.updateUserInfo(
+                    user.getName(),
+                    user.getCurrentBorrowCount(),
+                    5
+            );
                 LibraryController libraryController = new LibraryController(repository);
 
                 // 전체 도서 목록 기본 출력
