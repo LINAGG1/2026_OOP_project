@@ -25,6 +25,28 @@ public class Main {
         LoginController loginController =
                 new LoginController(repository);
 
+        // 회원가입 완료 이벤트 연결
+        loginView.addRegisterListener((id, pw, name) -> {
+
+            // 입력받은 정보로 일반 사용자 권한을 가진 새 유저 생성
+            User newUser = new User(id, pw, name, "USER");
+
+            // 레포지토리에 회원 등록 처리
+            boolean success = repository.registerUser(newUser);
+
+            if (success) {
+                // 회원가입 성공 시 나경이가 구현한 파일 저장 메소드 호출
+                // repository.saveToFile(); // 나경이가 만든 저장 메소드명에 맞춰 주석 해제해서 사용해!
+            } else {
+                JOptionPane.showMessageDialog(
+                        loginView,
+                        "이미 존재하는 아이디입니다.",
+                        "회원가입 오류",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+        });
+
         // 로그인 버튼 이벤트 연결
         loginView.addLoginListener(e -> {
 

@@ -124,7 +124,11 @@ public class LoginView extends JFrame {
                         "입력 오류", 
                         JOptionPane.WARNING_MESSAGE);
             } else {
-                JOptionPane.showMessageDialog(registerDialog, "회원가입 요청이 전송되었습니다.");
+                // 메인(Main.java)으로 데이터를 토스해주기 위해 우리가 만든 통로를 실행하는 거야!
+                if (registerListener != null) {
+                    registerListener.onRegister(id, pw, name);
+                }
+                JOptionPane.showMessageDialog(registerDialog, "회원가입이 완료되었습니다.");
                 registerDialog.dispose();
             }
         });
@@ -132,7 +136,17 @@ public class LoginView extends JFrame {
         registerDialog.setVisible(true);
     }
 
-    // Controller가 입력된 데이터를 전송받기 위한 Getter 메소드
+    //회원가입 완료 데이터를 전달하기 위한 인터페이스
+    public interface RegisterListener {
+        void onRegister(String id, String pw, String name);
+    }
+    private RegisterListener registerListener;
+
+   // Main.java에서 회원가입 이벤트를 연결할 수 있도록 해주는 메소드
+    public void addRegisterListener(RegisterListener listener) {
+        this.registerListener = listener;
+    }
+      // Controller가 입력된 데이터를 전송받기 위한 Getter 메소드
     public String getIdInput() { return idField.getText().trim(); }
     public String getPwInput() { return new String(pwField.getPassword()).trim(); }
     
