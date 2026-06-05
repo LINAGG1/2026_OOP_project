@@ -15,7 +15,7 @@ public class LibraryController {
         this.repository = repository;
     }
 
-    public boolean borrowBook(String userId, String bookId) { //도서 대여 요청 처리
+    public boolean borrowBook(String userId, String bookId) { //사용자별 최대 대여 가능 권수(5권) 검증 후 대여 처리
          
         User user = repository.findUserById(userId);
 
