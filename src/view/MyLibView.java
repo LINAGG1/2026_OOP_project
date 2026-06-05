@@ -20,7 +20,7 @@ public class MyLibView extends JFrame {
         // 프레임 기본 초기화 설정
         setTitle("도서관 관리 시스템 - 마이페이지");
         setSize(600, 400);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
 
