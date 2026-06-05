@@ -15,6 +15,12 @@ public class LibraryController {
     }
 
     public boolean borrowBook(String userId, String bookId) { //도서 대여 요청 처리
+         
+        User user = repository.findUserById(userId);
+
+        if (user.getCurrentBorrowCount() >= 5) {
+            return false;
+        }
         return repository.borrowBook(userId, bookId);
     }
 
