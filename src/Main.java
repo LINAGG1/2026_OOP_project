@@ -4,6 +4,7 @@ import controller.LoginController;
 import model.Book;
 import model.BookRepository;
 import model.User;
+import model.BorrowRecord;
 import view.AdminView;
 import view.BookSearchView;
 import view.LoginView;
@@ -178,22 +179,26 @@ public class Main {
 
                 // 마이페이지 전환 및 데이터 동기화 이벤트 처리
                 searchView.addMyPageListener(ev -> {
-                    
-                    myLibView.getTableModel().setRowCount(0);
-                    for (Book book : repository.getBooks()) {
-                        
-                        if (book.isBorrowed()) {
-                            myLibView.getTableModel().addRow(new Object[]{
-                                    book.getBookId(), 
-                                    book.getTitle(), 
-                                    book.getAuthor(), 
-                                    "2026-06-05", 
-                                    "2026-06-12"
-                            });
-                        }
+
+                myLibView.getTableModel().setRowCount(0);
+
+                for (BorrowRecord record : user.getBorrowRecords()) {
+
+                    if (!record.isReturned()) {
+
+                        myLibView.getTableModel().addRow(
+                             new Object[]{
+                                record.getBook().getBookId(),
+                                record.getBook().getTitle(),
+                                record.getBorrowDate(),
+                                record.getDueDate()
+                            }
+                        );
                     }
-                    myLibView.setVisible(true);
-                });
+                  }
+
+                myLibView.setVisible(true);
+            });
 
                 // 대여 도서 반납 이벤트 처리
                 myLibView.addReturnListener(ev -> {
