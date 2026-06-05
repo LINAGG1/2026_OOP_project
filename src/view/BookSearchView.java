@@ -7,7 +7,7 @@ import java.awt.event.ActionListener;
 
 /*
 메인 도서 검색 및 대여 신청 화면을 담당하는 View
-JComboBox를 통한 조건별 검색 및 JTable 기반의 도서 목록 시각화 구현
+JComboBox를 통한 조건별 검색, JTable 기반의 도서 목록 시각화 및 로그아웃 기능 구현
 */
 public class BookSearchView extends JFrame {
     private JComboBox<String> searchCategoryBox;
@@ -17,6 +17,9 @@ public class BookSearchView extends JFrame {
     private DefaultTableModel tableModel;
     private JButton rentButton;
     private JButton myPageButton;
+
+    // 세션 종료 처리를 위한 로그아웃 버튼 컴포넌트 선언
+    private JButton logoutButton;
 
     public BookSearchView() {
         // 프레임 기본 초기화 설정
@@ -64,7 +67,7 @@ public class BookSearchView extends JFrame {
         centerPanel.add(scrollPane, BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
 
-        // 하단 기능 버튼 영역 패널 설정
+        // 하단 기능 버튼 영역 패널 설정 (마이페이지, 대여 신청, 로그아웃 버튼 컴포넌트 배치)
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 15));
         
         myPageButton = new JButton("마이페이지");
@@ -72,7 +75,11 @@ public class BookSearchView extends JFrame {
         
         rentButton = new JButton("대여 신청");
         rentButton.setPreferredSize(new Dimension(100, 35));
+
+        logoutButton = new JButton("로그아웃");
+        logoutButton.setPreferredSize(new Dimension(100, 35));
         
+        bottomPanel.add(logoutButton);
         bottomPanel.add(myPageButton); 
         bottomPanel.add(rentButton);
         add(bottomPanel, BorderLayout.SOUTH);
@@ -115,7 +122,7 @@ public class BookSearchView extends JFrame {
         rentButton.addActionListener(e -> {
             String selectedId = getSelectedBookId();
             
-            // 대여 대상 도서 선택 여부 검증
+            // 대여 대상 도서 선택 여부 유효성 검증
             if (selectedId == null) {
                 JOptionPane.showMessageDialog(this, 
                         "대여할 도서를 목록에서 선택해 주세요.", 
@@ -125,5 +132,10 @@ public class BookSearchView extends JFrame {
                 listener.actionPerformed(e);
             }
         });
+    }
+
+    // Main 계층에서 로그아웃 기능을 제어하기 위한 리스너 등록 통로 메소드
+    public void addLogoutListener(ActionListener listener) {
+        logoutButton.addActionListener(listener);
     }
 }

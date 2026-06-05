@@ -6,8 +6,8 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 
 /*
-관리자 전용 도서 관리 화면을 담당하는 View
-신규 도서 등록 폼 구성 및 JTable을 통한 도서 삭제 기능 구현
+관리자 전용 도서 관리 및 세션 제어를 담당하는 View
+신규 도서 등록 폼 구성, JTable 기반 도서 삭제 및 로그아웃 기능 구현
 */
 public class AdminView extends JFrame {
     private JTextField idField;
@@ -17,6 +17,9 @@ public class AdminView extends JFrame {
     private JTable bookTable;
     private DefaultTableModel tableModel;
     private JButton deleteButton;
+
+    // 로그아웃 처리를 위한 버튼 컴포넌트 선언
+    private JButton logoutButton;
 
     public AdminView() {
         // 프레임 기본 초기화 설정
@@ -54,18 +57,23 @@ public class AdminView extends JFrame {
         gbc.gridx = 1; gbc.gridy = 2; gbc.weightx = 1.0;
         formPanel.add(authorField, gbc);
 
-        // 등록 버튼 배치
+        // 하단 버튼 배치 영역 설정 (등록 버튼 및 로그아웃 버튼 배치)
+        JPanel buttonContainer = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
         addButton = new JButton("도서 등록");
+        logoutButton = new JButton("로그아웃");
+        buttonContainer.add(addButton);
+        buttonContainer.add(logoutButton);
+
         gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 2; gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.CENTER;
-        formPanel.add(addButton, gbc);
+        formPanel.add(buttonContainer, gbc);
 
         add(formPanel, BorderLayout.NORTH);
 
         // 중앙 전체 도서 목록 표 영역 설정 (JTable 활용)
         String[] columnNames = {"도서 ID", "도서명", "저자", "대여 상태"};
         
-        // 셀 더블클릭 수정 방지
+        // 셀 더블클릭 수정 방지 익명 클래스 정의
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -124,7 +132,7 @@ public class AdminView extends JFrame {
             String title = getBookTitleInput();
             String author = getBookAuthorInput();
 
-            // 데이터 누락 여부 검증
+            // 데이터 누락 여부 유효성 검증
             if (id.isEmpty() || title.isEmpty() || author.isEmpty()) {
                 JOptionPane.showMessageDialog(this, 
                         "도서 정보(ID, 제목, 저자)를 모두 입력해 주세요.", 
@@ -141,7 +149,7 @@ public class AdminView extends JFrame {
         deleteButton.addActionListener(e -> {
             String selectedId = getSelectedBookId();
             
-            // 삭제 대상 도서 선택 여부 검증
+            // 삭제 대상 도서 선택 여부 유효성 검증
             if (selectedId == null) {
                 JOptionPane.showMessageDialog(this, 
                         "삭제할 도서를 목록에서 선택해 주세요.", 
@@ -151,6 +159,11 @@ public class AdminView extends JFrame {
                 listener.actionPerformed(e);
             }
         });
+    }
+
+    // Main 계층에서 로그아웃 기능을 제어하기 위한 리스너 등록 통로 메소드
+    public void addLogoutListener(ActionListener listener) {
+        logoutButton.addActionListener(listener);
     }
 
     // 독립 화면 기능 검증을 위한 임시 테스트 메인 메소드
@@ -167,6 +180,11 @@ public class AdminView extends JFrame {
             // 도서 삭제 검증 성공 시 작동할 테스트용 임시 리스너 연결
             view.addDeleteListener(e -> {
                 JOptionPane.showMessageDialog(view, "삭제 검증 통과! (컨트롤러로 데이터 이동)");
+            });
+
+            // 로그아웃 작동 테스트용 임시 리스너 연결
+            view.addLogoutListener(e -> {
+                JOptionPane.showMessageDialog(view, "로그아웃 버튼 클릭 감지 확인");
             });
             
             view.setVisible(true);
