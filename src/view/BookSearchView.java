@@ -16,6 +16,7 @@ public class BookSearchView extends JFrame {
     private JTable bookTable;
     private DefaultTableModel tableModel;
     private JButton rentButton;
+    private JButton myPageButton;
 
     public BookSearchView() {
         // 창 기본 세팅
@@ -63,10 +64,18 @@ public class BookSearchView extends JFrame {
         centerPanel.add(scrollPane, BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
 
-        // 하단 대여 기능 버튼 영역 설정
+        // 하단 기능 버튼 영역 설정
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 15));
+        
+        // 마이페이지 버튼 생성 및 세팅 
+        myPageButton = new JButton("마이페이지");
+        myPageButton.setPreferredSize(new Dimension(100, 35));
+        
         rentButton = new JButton("대여 신청");
         rentButton.setPreferredSize(new Dimension(100, 35));
+        
+        // 마이페이지 버튼이 왼쪽, 대여 신청이 오른쪽에 오도록 순서대로 패널에 등록
+        bottomPanel.add(myPageButton); 
         bottomPanel.add(rentButton);
         add(bottomPanel, BorderLayout.SOUTH);
     }
@@ -96,6 +105,11 @@ public class BookSearchView extends JFrame {
     // Controller가 검색 버튼 이벤트를 제어하기 위한 리스너 통로
     public void addSearchListener(ActionListener listener) {
         searchButton.addActionListener(listener);
+    }
+
+    // 🛠 [추가 완료] Main.java의 빨간 줄을 없애줄 마이페이지 리스너 통로 메소드
+    public void addMyPageListener(ActionListener listener) {
+        myPageButton.addActionListener(listener);
     }
 
     // Controller가 대여 버튼 이벤트를 제어하기 위한 리스너 통로

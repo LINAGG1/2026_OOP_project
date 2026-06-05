@@ -7,6 +7,7 @@ import model.User;
 import view.AdminView;
 import view.BookSearchView;
 import view.LoginView;
+import view.MyLibView;
 
 import javax.swing.*;
 
@@ -176,6 +177,9 @@ public class Main {
                 BookSearchView searchView =
                         new BookSearchView();
 
+                MyLibView myLibView = 
+                        new MyLibView();
+
                 LibraryController libraryController =
                         new LibraryController(repository);
 
@@ -192,6 +196,52 @@ public class Main {
                                             : "대여가능"
                             });
                 }
+
+                // 마이페이지 이동 버튼 이벤트 연결
+                searchView.addMyPageListener(ev -> {
+                    // 마이페이지 열 때마다 테이블 초기화 후 최신 대여 데이터 매핑
+                    myLibView.getTableModel().setRowCount(0);
+                    for (Book book : repository.getBooks()) {
+                        // 대여된 도서 목록을 마이페이지 표에 동적 동기화
+                        if (book.isBorrowed()) {
+                            myLibView.getTableModel().addRow(new Object[]{
+                                    book.getBookId(), 
+                                    book.getTitle(), 
+                                    book.getAuthor(), 
+                                    "2026-06-05", // 반납일 예시 더미 매핑
+                                    "2026-06-12"
+                            });
+                        }
+                    }
+                    myLibView.setVisible(true); // 마이페이지 화면 활성화
+                });
+
+                // 마이페이지 내부의 도서 반납 버튼 이벤트 연결
+                myLibView.addReturnListener(ev -> {
+                    String selectedBookId = myLibView.getSelectedBookId();
+                    if (selectedBookId == null) return;
+
+                    boolean success = libraryController.returnBook(user.getUserId(), selectedBookId);
+                    if (success) {
+                        JOptionPane.showMessageDialog(myLibView, "반납이 완료되었습니다.");
+                        
+                        // 반납 후 마이페이지 및 메인 검색창 테이블 동시 실시간 동기화
+                        myLibView.getTableModel().setRowCount(0);
+                        searchView.getTableModel().setRowCount(0);
+                        for (Book book : repository.getBooks()) {
+                            searchView.getTableModel().addRow(new Object[]{
+                                    book.getBookId(), book.getTitle(), book.getAuthor(), book.isBorrowed() ? "대여중" : "대여가능"
+                            });
+                            if (book.isBorrowed()) {
+                                myLibView.getTableModel().addRow(new Object[]{
+                                        book.getBookId(), book.getTitle(), book.getAuthor(), "2026-06-05", "2026-06-12"
+                                });
+                            }
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(myLibView, "반납 처리에 실패했습니다.");
+                    }
+                });
 
                 // 검색 버튼
                 searchView.addSearchListener(ev -> {
