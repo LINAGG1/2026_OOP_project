@@ -71,6 +71,11 @@ public class Main {
             AdminView adminView = new AdminView();
             AdminController adminController = new AdminController(repository);
 
+            adminView.addLogoutListener(ev -> {
+            adminView.dispose();
+            showLogin(repository);
+        });
+
             // 기존 도서 목록 전체 조회 및 테이블 행 데이터 삽입
             for (Book book : repository.getBooks()) {
                 adminView.getTableModel().addRow(
@@ -134,6 +139,11 @@ public class Main {
 
             BookSearchView searchView = new BookSearchView();
             MyLibView myLibView = new MyLibView();
+
+            searchView.addLogoutListener(ev -> {
+            searchView.dispose();
+            showLogin(repository);
+        });
             
             // 마이페이지 회원별 세션 정보 인출 및 컴포넌트 데이터 초기화
             myLibView.updateUserInfo(user.getName(), user.getCurrentBorrowCount(), 5);
