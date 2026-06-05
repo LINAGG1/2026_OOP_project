@@ -14,9 +14,15 @@ public class AdminController {
         this.repository = repository;
     }
 
-    public void addBook(Book book) { //새로운 도서를 등록
-        repository.addBook(book);
+    public boolean addBook(Book book) {
+
+    if (repository.findBookById(book.getBookId()) != null) {
+        return false;
     }
+
+    repository.addBook(book);
+    return true;
+}
 
     public void removeBook(String bookId) { //도서 ID를 이용해 도서를 삭제
         repository.removeBook(bookId);
