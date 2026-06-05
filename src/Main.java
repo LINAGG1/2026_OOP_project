@@ -18,25 +18,6 @@ public class Main {
         // Repository 하나만 생성해서 공유
         BookRepository repository = new BookRepository();
 
-        // 테스트용 도서
-        repository.addBook(
-                new Book("001", "자바 프로그래밍", "홍길동"));
-
-        repository.addBook(
-                new Book("002", "자료구조", "김철수"));
-
-        repository.addBook(
-                new Book("003", "운영체제", "이영희"));
-
-        repository.addBook(
-                new Book("004", "데이터베이스", "박민수"));
-
-        // 테스트용 계정
-        repository.registerUser(
-                new User("admin", "1234", "관리자", "ADMIN"));
-
-        repository.registerUser(
-                new User("test", "1234", "사용자", "USER"));
 
         // 로그인 관련 객체 생성
         LoginView loginView = new LoginView();

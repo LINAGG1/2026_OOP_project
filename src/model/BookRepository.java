@@ -1,6 +1,7 @@
 package model;
 
 import java.util.ArrayList;
+import java.io.*;
 
 public class BookRepository {
 
@@ -10,6 +11,9 @@ public class BookRepository {
   public BookRepository() {
       books = new ArrayList<>();
       users = new ArrayList<>();
+
+      loadBooks();
+      loadUsers();
     }
 
     // =====================
@@ -18,6 +22,7 @@ public class BookRepository {
 
   public void addBook(Book book) {
     books.add(book);
+    saveBooks();
   }
 
   public void removeBook(String bookId) {
@@ -26,6 +31,7 @@ public class BookRepository {
 
       if (book != null) {
         books.remove(book);
+        saveBooks();
       }
   }
 
@@ -88,11 +94,14 @@ public class BookRepository {
     }
 
     users.add(user);
+
+    saveUsers();
     return true;
   }
 
   public void addUser(User user) {
     users.add(user);
+    saveUsers();
   }
 
   public User findUserById(String userId) {
@@ -147,7 +156,7 @@ public class BookRepository {
     book.setBorrowed(true);
 
     user.borrowBook(book);
-
+    saveBooks();
     return true;
   }
 
@@ -167,7 +176,80 @@ public class BookRepository {
     book.setBorrowed(false);
 
     user.returnBook(book);
-
+    saveBooks();
     return true;
+  }
+
+  public void saveBooks() {
+
+    try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream("books.txt"), "UTF-8"))) {
+      for (Book book : books) {
+        pw.println(book.getBookId() + "," + book.getTitle() + "," + book.getAuthor() + "," + book.isBorrowed());
+      }
+    } catch (IOException e) {
+      e.printStackTrace();  
+    }
+  }
+
+  private void loadBooks() {
+    File file = new File("books.txt");
+    if (!file.exists()) {
+      return;
+    }
+    try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+      String line;
+      while ((line = br.readLine()) != null) {
+        String[] data = line.split(",");
+        if (data.length == 4) {
+          books.add(
+            new Book(
+              data[0],
+              data[1],
+              data[2],
+              Boolean.parseBoolean(data[3])
+            )
+          );
+        }
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void saveUsers() {
+
+    try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream("users.txt"), "UTF-8"))) {
+      for (User user : users) {
+        pw.println(user.getUserId() + "," + user.getPassword() + "," + user.getName() + "," + user.getRole());
+      }
+    } catch (IOException e) {
+      e.printStackTrace();  
+    }
+  }
+
+  private void loadUsers() {
+    File file = new File("users.txt");
+    if (!file.exists()) {
+      return;
+    }
+    try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+      String line;
+      while ((line = br.readLine()) != null) {
+        String[] data = line.split(",");
+        if (data.length == 4) {
+          users.add(
+            new User(
+              data[0],
+              data[1],
+              data[2],
+              data[3]
+            )
+          );
+        }
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
   }
 }
