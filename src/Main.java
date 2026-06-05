@@ -116,7 +116,7 @@ public class Main {
                                     book.getTitle(),
                                     book.getAuthor(),
                                     "대여가능"
-                            });
+                            }));
 
                     adminView.clearInputFields();
 

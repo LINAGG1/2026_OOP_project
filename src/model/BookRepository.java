@@ -2,255 +2,371 @@ package model;
 
 import java.util.ArrayList;
 import java.io.*;
-
+import java.time.LocalDate;
 
 public class BookRepository {
-  private final String base = System.getProperty("user.dir");
-  private ArrayList<Book> books;
-  private ArrayList<User> users;
 
-  public BookRepository() {
-      books = new ArrayList<>();
-      users = new ArrayList<>();
+    private final String base = System.getProperty("user.dir");
 
-      loadBooks();
-      loadUsers();
+    private ArrayList<Book> books;
+    private ArrayList<User> users;
+    private ArrayList<BorrowRecord> borrowRecords;
+
+    public BookRepository() {
+        books = new ArrayList<>();
+        users = new ArrayList<>();
+        borrowRecords = new ArrayList<>();
+
+        loadBooks();
+        loadUsers();
+        loadBorrowRecords();
     }
 
     // =====================
     // 도서 관리
     // =====================
 
-  public void addBook(Book book) {
-    books.add(book);
-    saveBooks();
-  }
+    public boolean addBook(Book book) {
+        if (findBookById(book.getBookId()) != null) {
+            return false;
+        }
+        books.add(book);
+        saveBooks();
+        return true;
+    }
 
-  public void removeBook(String bookId) {
+    public boolean removeBook(String bookId) {
 
-    Book book = findBookById(bookId);
+        Book book = findBookById(bookId);
 
-      if (book != null) {
+        if (book == null) {
+            return false;
+        }
+
         books.remove(book);
         saveBooks();
-      }
-  }
-
-  public Book findBookById(String bookId) {
-
-    for (Book book : books) {
-
-      if (book.getBookId().equals(bookId)) {
-        return book;
-        }
-      }
-
-      return null;
+        return true;
     }
 
-  public ArrayList<Book> searchBookByTitle(String title) {
-
-    ArrayList<Book> result = new ArrayList<>();
-
-      for (Book book : books) {
-
-        if (book.getTitle().contains(title)) {
-          result.add(book);
+    public Book findBookById(String bookId) {
+        for (Book book : books) {
+            if (book.getBookId().equals(bookId)) {
+                return book;
+            }
         }
-      }
-
-      return result;
+        return null;
     }
 
-  public ArrayList<Book> searchBookByAuthor(String author) {
+    public ArrayList<Book> searchBookByTitle(String title) {
 
-    ArrayList<Book> result = new ArrayList<>();
+        ArrayList<Book> result = new ArrayList<>();
 
-      for (Book book : books) {
-
-        if (book.getAuthor().contains(author)) {
-          result.add(book);
+        for (Book book : books) {
+            if (book.getTitle().contains(title)) {
+                result.add(book);
+            }
         }
-      }
-
-      return result;
+        return result;
     }
 
-  public Book searchBookByBookId(String bookId) {
-    return findBookById(bookId);
-  }
+    public ArrayList<Book> searchBookByAuthor(String author) {
 
-  public ArrayList<Book> getBooks() {
-    return books;
-  }
+        ArrayList<Book> result = new ArrayList<>();
+
+        for (Book book : books) {
+            if (book.getAuthor().contains(author)) {
+                result.add(book);
+            }
+        }
+        return result;
+    }
+
+    public Book searchBookByBookId(String bookId) {
+        return findBookById(bookId);
+    }
+
+    public ArrayList<Book> getBooks() {
+        return books;
+    }
 
     // =====================
     // 회원 관리
     // =====================
 
-  public boolean registerUser(User user) {
+    public boolean registerUser(User user) {
 
-    if (findUserById(user.getUserId()) != null) {
-      return false;
+        if (findUserById(user.getUserId()) != null) {
+            return false;
+        }
+
+        users.add(user);
+        saveUsers();
+        return true;
     }
 
-    users.add(user);
-
-    saveUsers();
-    return true;
-  }
-
-  public void addUser(User user) {
-    users.add(user);
-    saveUsers();
-  }
-
-  public User findUserById(String userId) {
-
-    for (User user : users) {
-
-      if (user.getUserId().equals(userId)) {
-        return user;
-      }
+    public User findUserById(String userId) {
+        for (User user : users) {
+            if (user.getUserId().equals(userId)) {
+                return user;
+            }
+        }
+        return null;
     }
 
-    return null;
-  }
-
-  public ArrayList<User> getUsers() {
-    return users;
-  }
+    public ArrayList<User> getUsers() {
+        return users;
+    }
 
     // =====================
     // 로그인
     // =====================
 
-  public User login(String userId, String password) {
+    public User login(String userId, String password) {
 
-    User user = findUserById(userId);
+        User user = findUserById(userId);
 
-      if (user != null && user.checkPassword(password)) {
+        if (user != null && user.checkPassword(password)) {
+            return user;
+        }
 
-        return user;
-      }
-
-    return null;
-  }
+        return null;
+    }
 
     // =====================
     // 대여
     // =====================
 
-  public boolean borrowBook(String userId, String bookId) {
+    public boolean borrowBook(String userId, String bookId) {
 
-    User user = findUserById(userId);
-    Book book = findBookById(bookId);
+        User user = findUserById(userId);
+        Book book = findBookById(bookId);
 
-    if (user == null || book == null) {
-      return false;
+        if (user == null || book == null) return false;
+        if (book.isBorrowed()) return false;
+
+        // 유저 제한 체크
+        if (!user.borrowBook(book)) return false;
+
+        book.setBorrowed(true);
+
+        borrowRecords.add(new BorrowRecord(userId, book));
+
+        saveBooks();
+        saveBorrowRecords();
+
+        return true;
     }
-
-    if (book.isBorrowed()) {
-      return false;
-    }
-
-    book.setBorrowed(true);
-
-    user.borrowBook(book);
-    saveBooks();
-    return true;
-  }
 
     // =====================
     // 반납
     // =====================
 
-  public boolean returnBook(String userId, String bookId) {
+    public boolean returnBook(String userId, String bookId) {
 
-    User user = findUserById(userId);
-    Book book = findBookById(bookId);
+        User user = findUserById(userId);
+        Book book = findBookById(bookId);
 
-    if (user == null || book == null) {
-      return false;
-    }
+        if (user == null || book == null) return false;
+        if (!book.isBorrowed()) return false;
 
-    book.setBorrowed(false);
+        user.returnBook(book);
+        book.setBorrowed(false);
 
-    user.returnBook(book);
-    saveBooks();
-    return true;
-  }
-
-  public void saveBooks() {
-
-    try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(base, "books.txt")), "UTF-8"))) {
-      for (Book book : books) {
-        pw.println(book.getBookId() + "," + book.getTitle() + "," + book.getAuthor() + "," + book.isBorrowed());
-      }
-    } catch (IOException e) {
-      e.printStackTrace();  
-    }
-  }
-
-  private void loadBooks() {
-    File file = new File(base, "books.txt");
-    if (!file.exists()) {
-      return;
-    }
-    try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
-      String line;
-      while ((line = br.readLine()) != null) {
-        String[] data = line.split(",");
-        if (data.length == 4) {
-          books.add(
-            new Book(
-              data[0],
-              data[1],
-              data[2],
-              Boolean.parseBoolean(data[3])
-            )
-          );
+        // 기록 업데이트
+        for (BorrowRecord r : borrowRecords) {
+            if (r.getBook().getBookId().equals(bookId) && !r.isReturned()) {
+                r.returnBook();
+                break;
+            }
         }
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
 
-  private void saveUsers() {
+        saveBooks();
+        saveBorrowRecords();
 
-    try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(base, "users.txt")), "UTF-8"))) {
-      for (User user : users) {
-        pw.println(user.getUserId() + "," + user.getPassword() + "," + user.getName() + "," + user.getRole());
-      }
-    } catch (IOException e) {
-      e.printStackTrace();  
+        return true;
     }
-  }
 
-  private void loadUsers() {
-    File file = new File(base, "users.txt");
-    if (!file.exists()) {
-      return;
-    }
-    try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
-      String line;
-      while ((line = br.readLine()) != null) {
-        String[] data = line.split(",");
-        if (data.length == 4) {
-          users.add(
-            new User(
-              data[0],
-              data[1],
-              data[2],
-              data[3]
-            )
-          );
+    // =====================
+    // 파일 저장 (books)
+    // =====================
+
+    public void saveBooks() {
+
+        try (PrintWriter pw = new PrintWriter(
+                new OutputStreamWriter(
+                        new FileOutputStream(new File(base, "books.txt")),
+                        "UTF-8"))) {
+
+            for (Book book : books) {
+                pw.println(
+                        book.getBookId() + "," +
+                        book.getTitle() + "," +
+                        book.getAuthor() + "," +
+                        book.isBorrowed()
+                );
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
     }
 
-  }
+    // =====================
+    // 파일 저장 (users)
+    // =====================
+
+    private void saveUsers() {
+
+        try (PrintWriter pw = new PrintWriter(
+                new OutputStreamWriter(
+                        new FileOutputStream(new File(base, "users.txt")),
+                        "UTF-8"))) {
+
+            for (User user : users) {
+                pw.println(
+                        user.getUserId() + "," +
+                        user.getPassword() + "," +
+                        user.getName() + "," +
+                        user.getRole()
+                );
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // =====================
+    // borrowRecords 저장 (💡 유저 ID 저장하도록 수정됨)
+    // =====================
+    private void saveBorrowRecords() {
+
+        try (PrintWriter pw = new PrintWriter(
+                new OutputStreamWriter(
+                        new FileOutputStream(new File(base, "borrowRecords.txt")),
+                        "UTF-8"))) {
+
+            for (BorrowRecord r : borrowRecords) {
+                pw.println(
+                        r.getUserId() + "," + // 👈 유저 ID 추가!
+                        r.getBook().getBookId() + "," +
+                        r.getBorrowDate() + "," +
+                        r.getDueDate() + "," +
+                        r.isReturned()
+                );
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // =====================
+    // borrowRecords 로딩 
+    // =====================
+    private void loadBorrowRecords() {
+
+        File file = new File(base, "borrowRecords.txt");
+        if (!file.exists()) return;
+
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
+
+            String line;
+
+            while ((line = br.readLine()) != null) {
+
+                String[] data = line.split(",");
+
+                // 데이터 개수가 5개인지 확인
+                if (data.length == 5) {
+
+                    String userId = data[0];
+                    String bookId = data[1];
+                    LocalDate borrowDate = LocalDate.parse(data[2]);
+                    LocalDate dueDate = LocalDate.parse(data[3]);
+                    boolean returned = Boolean.parseBoolean(data[4]);
+
+                    Book book = findBookById(bookId);
+                    if (book == null) continue;
+
+                    // 생성자에 userId와 book을 올바른 순서로 주입
+                    BorrowRecord record = new BorrowRecord(userId, book, borrowDate, dueDate, returned);
+
+                    if (returned) record.returnBook();
+
+                    borrowRecords.add(record);
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // =====================
+    // users 로딩
+    // =====================
+
+    private void loadUsers() {
+        File file = new File(base, "users.txt");
+        if (!file.exists()) return;
+
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
+
+            String line;
+
+            while ((line = br.readLine()) != null) {
+
+                String[] data = line.split(",");
+
+                if (data.length == 4) {
+                    users.add(new User(
+                            data[0],
+                            data[1],
+                            data[2],
+                            data[3]
+                    ));
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // =====================
+    // books 로딩
+    // =====================
+
+    private void loadBooks() {
+
+        File file = new File(base, "books.txt");
+        if (!file.exists()) return;
+
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
+
+            String line;
+
+            while ((line = br.readLine()) != null) {
+
+                String[] data = line.split(",");
+
+                if (data.length == 4) {
+
+                    books.add(new Book(
+                            data[0],
+                            data[1],
+                            data[2],
+                            Boolean.parseBoolean(data[3])
+                    ));
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

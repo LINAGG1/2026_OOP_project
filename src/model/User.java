@@ -81,10 +81,15 @@ public class User {
     }
 
     // 도서 대여
-    public void borrowBook(Book book) {
-        borrowRecords.add(new BorrowRecord(book));
-    }
+    public static final int MAX_BORROW = 5;
+    public boolean borrowBook(Book book) {
+        if (getCurrentBorrowCount() >= MAX_BORROW) {
+            return false; // 최대 대여 수 초과
+        }
 
+        borrowRecords.add(new BorrowRecord(userId, book));
+        return true;
+    }
     // 도서 반납
     public void returnBook(Book book) {
 
