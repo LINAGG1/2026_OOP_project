@@ -12,6 +12,9 @@ public class BookRepository {
     private ArrayList<User> users;
     private ArrayList<BorrowRecord> borrowRecords;
 
+    // 현재 로그인한 유저 상태를 기억할 모델 세션 변수
+    private User currentUser = null; 
+
     public BookRepository() {
         books = new ArrayList<>();
         users = new ArrayList<>();
@@ -117,19 +120,31 @@ public class BookRepository {
         return users;
     }
 
-    // =====================
-    // 로그인
-    // =====================
+    // ==========================================
+    // 로그인 / 로그아웃 (모델 세션 관리) 
+    // ==========================================
 
+    // 기존 로그인 메서드를 수정하여 성공 시 currentUser에 유저를 저장합니다.
     public User login(String userId, String password) {
 
         User user = findUserById(userId);
 
         if (user != null && user.checkPassword(password)) {
+            this.currentUser = user; // 로그인 성공한 유저를 모델이 기억함!
             return user;
         }
 
         return null;
+    }
+
+    // 로그아웃 기능을 모델단에 구현
+    public void logout() {
+        this.currentUser = null; 
+    }
+
+    // 외부(Controller나 Main)에서 현재 누가 로그인했는지 확인할 때 쓰는 메서드
+    public User getCurrentUser() {
+        return this.currentUser;
     }
 
     // =====================
