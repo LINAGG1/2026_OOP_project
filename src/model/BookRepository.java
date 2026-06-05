@@ -237,7 +237,7 @@ public class BookRepository {
     }
 
     // =====================
-    // borrowRecords 저장 (💡 유저 ID 저장하도록 수정됨)
+    // borrowRecords 저장
     // =====================
     private void saveBorrowRecords() {
 
@@ -248,7 +248,7 @@ public class BookRepository {
 
             for (BorrowRecord r : borrowRecords) {
                 pw.println(
-                        r.getUserId() + "," + // 👈 유저 ID 추가!
+                        r.getUserId() + "," +
                         r.getBook().getBookId() + "," +
                         r.getBorrowDate() + "," +
                         r.getDueDate() + "," +
@@ -278,7 +278,6 @@ public class BookRepository {
 
                 String[] data = line.split(",");
 
-                // 데이터 개수가 5개인지 확인
                 if (data.length == 5) {
 
                     String userId = data[0];
@@ -290,12 +289,17 @@ public class BookRepository {
                     Book book = findBookById(bookId);
                     if (book == null) continue;
 
-                    // 생성자에 userId와 book을 올바른 순서로 주입
+                    // 1. 파일에서 복구한 대여 기록 객체 생성
                     BorrowRecord record = new BorrowRecord(userId, book, borrowDate, dueDate, returned);
 
-                    if (returned) record.returnBook();
-
+                    // 2. 전체 대여 리스트에 추가
                     borrowRecords.add(record);
+
+                    // 3. 유저 객체를 찾아 해당 대여 기록(record)을 통째로 주입
+                    User user = findUserById(userId);
+                    if (user != null) {
+                        user.addLoadedRecord(record); 
+                    }
                 }
             }
 

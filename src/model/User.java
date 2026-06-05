@@ -90,6 +90,16 @@ public class User {
         borrowRecords.add(new BorrowRecord(userId, book));
         return true;
     }
+
+    public void addLoadedRecord(BorrowRecord record) {
+        if (this.borrowRecords == null) {
+            this.borrowRecords = new ArrayList<>();
+        }
+        if (!this.borrowRecords.contains(record)) {
+            this.borrowRecords.add(record);
+        }
+    }
+
     // 도서 반납
     public void returnBook(Book book) {
 
