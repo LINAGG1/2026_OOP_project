@@ -3,8 +3,9 @@ package model;
 import java.util.ArrayList;
 import java.io.*;
 
-public class BookRepository {
 
+public class BookRepository {
+  private final String base = System.getProperty("user.dir");
   private ArrayList<Book> books;
   private ArrayList<User> users;
 
@@ -182,7 +183,7 @@ public class BookRepository {
 
   public void saveBooks() {
 
-    try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream("books.txt"), "UTF-8"))) {
+    try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(base, "books.txt")), "UTF-8"))) {
       for (Book book : books) {
         pw.println(book.getBookId() + "," + book.getTitle() + "," + book.getAuthor() + "," + book.isBorrowed());
       }
@@ -192,11 +193,11 @@ public class BookRepository {
   }
 
   private void loadBooks() {
-    File file = new File("books.txt");
+    File file = new File(base, "books.txt");
     if (!file.exists()) {
       return;
     }
-    try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
       String line;
       while ((line = br.readLine()) != null) {
         String[] data = line.split(",");
@@ -218,7 +219,7 @@ public class BookRepository {
 
   private void saveUsers() {
 
-    try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream("users.txt"), "UTF-8"))) {
+    try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(base, "users.txt")), "UTF-8"))) {
       for (User user : users) {
         pw.println(user.getUserId() + "," + user.getPassword() + "," + user.getName() + "," + user.getRole());
       }
@@ -228,11 +229,11 @@ public class BookRepository {
   }
 
   private void loadUsers() {
-    File file = new File("users.txt");
+    File file = new File(base, "users.txt");
     if (!file.exists()) {
       return;
     }
-    try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
       String line;
       while ((line = br.readLine()) != null) {
         String[] data = line.split(",");
