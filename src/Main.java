@@ -77,6 +77,15 @@ public class Main {
                 AdminView adminView = new AdminView();
                 AdminController adminController = new AdminController(repository);
 
+                 // 로그아웃 버튼 추가 
+                adminView.addLogoutListener(ev -> {
+
+                    repository.logout();
+                    adminView.dispose();
+
+                    showLogin(repository);
+                });
+                
                 // 기존 도서 목록 전체 조회 및 테이블 추가
                 for (Book book : repository.getBooks()) {
 
