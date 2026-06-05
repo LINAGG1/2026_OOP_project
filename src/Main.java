@@ -35,8 +35,7 @@ public class Main {
             boolean success = repository.registerUser(newUser);
 
             if (success) {
-                // 회원가입 성공 시 나경이가 구현한 파일 저장 메소드 호출
-                // 메소드명에 맞춰 주석 해제해서 사용해!
+                // 회원가입 성공 시 파일 저장 메소드 호출
             } else {
                 JOptionPane.showMessageDialog(
                         loginView,
