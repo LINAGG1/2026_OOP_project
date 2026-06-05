@@ -54,8 +54,8 @@ public class Main {
                     user.getName() + "님 환영합니다."
             );
 
-            loginView.dispose();
-            executeSession(user, repository); // 사용자 세션 흐름 진입
+            loginView.setVisible(false);
+            executeSession(user, repository);
         });
 
         loginView.setVisible(true);
