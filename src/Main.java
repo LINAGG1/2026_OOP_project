@@ -309,7 +309,7 @@ public class Main {
 
                         JOptionPane.showMessageDialog(
                                 searchView,
-                                "대여할 수 없습니다."
+                                "대여 불가 (대여 권수 초과 또는 이미 대여중인 도서)"
                         );
                     }
                 });
