@@ -2,7 +2,7 @@
 002,자료구조,김철수,false
 003,운영체제,이영희,false
 004,데이터베이스,박영수,false
-005,java,jjaavvaa,false
-006,자자자자바바바바,자자자자자ㅏ바바ㅏ바,true
-007,하,하,true
-008,ㅎㅎ,ㅎㅎ,true
+005,java,jjaavvaa,true
+006,자자자자바바바바,자자자자자ㅏ바바ㅏ바,false
+007,하,하,false
+008,ㅎㅎ,ㅎㅎ,false

@@ -18,7 +18,7 @@ public class LoginView extends JFrame {
     private JButton registerButton;
 
     public LoginView() {
-        // 창 기본 설정
+        // 프레임 기본 초기화 설정
         setTitle("도서관 관리 시스템 - 로그인");
         setSize(380, 260);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -124,7 +124,7 @@ public class LoginView extends JFrame {
                         "입력 오류", 
                         JOptionPane.WARNING_MESSAGE);
             } else {
-                // 메인(Main.java)으로 데이터를 토스해주기 위해 우리가 만든 통로를 실행하는 거야!
+                // Main 데이터 전송을 위한 인터페이스 리스너 호출
                 if (registerListener != null) {
                     registerListener.onRegister(id, pw, name);
                 }
@@ -136,17 +136,18 @@ public class LoginView extends JFrame {
         registerDialog.setVisible(true);
     }
 
-    //회원가입 완료 데이터를 전달하기 위한 인터페이스
+    // 회원가입 완료 데이터를 전달하기 위한 인터페이스
     public interface RegisterListener {
         void onRegister(String id, String pw, String name);
     }
     private RegisterListener registerListener;
 
-   // Main.java에서 회원가입 이벤트를 연결할 수 있도록 해주는 메소드
+    // Main 컴포넌트와 회원가입 이벤트를 바인딩하기 위한 리스너 등록 메소드
     public void addRegisterListener(RegisterListener listener) {
         this.registerListener = listener;
     }
-      // Controller가 입력된 데이터를 전송받기 위한 Getter 메소드
+
+    // Controller 계층에서 사용자가 입력한 아이디와 비밀번호를 인출하기 위한 메소드
     public String getIdInput() { return idField.getText().trim(); }
     public String getPwInput() { return new String(pwField.getPassword()).trim(); }
     
@@ -174,12 +175,12 @@ public class LoginView extends JFrame {
         });
     }
 
-    // 화면 독립 테스트를 위한 임시 메인 메소드
-   public static void main(String[] args) {
+    // 독립 화면 기능 검증을 위한 임시 테스트 메인 메소드
+    public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             LoginView view = new LoginView();
             
-            // 검증을 통과했을 때 작동할 임시 통로(Listener)를 억지로 하나 연결해 주는 거야!
+            // 로그인 데이터 검증 성공 시 작동할 테스트용 임시 리스너 연결
             view.addLoginListener(e -> {
                 JOptionPane.showMessageDialog(view, "로그인 검증 성공! (아이디/비밀번호 모두 입력됨)");
             });
@@ -187,4 +188,4 @@ public class LoginView extends JFrame {
             view.setVisible(true);
         });
     }
-} 
+}
