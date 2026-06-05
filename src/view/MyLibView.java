@@ -17,7 +17,7 @@ public class MyLibView extends JFrame {
     private JButton returnButton;
 
     public MyLibView() {
-        // 창 기본 세팅
+        // 프레임 기본 초기화 설정
         setTitle("도서관 관리 시스템 - 마이페이지");
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -41,7 +41,7 @@ public class MyLibView extends JFrame {
         // 중앙 대여 현황 표 영역 설정 (JTable 활용)
         String[] columnNames = {"도서 ID", "도서명", "대여일", "반납 기한"};
         
-        // 셀 더블클릭 수정 방지
+        // 셀 임의 수정 방지를 위한 익명 클래스 기반 테이블 모델 정의
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -69,30 +69,30 @@ public class MyLibView extends JFrame {
         add(bottomPanel, BorderLayout.SOUTH);
     }
 
-    // Controller가 로그인한 유저 세션 정보를 상단 라벨에 업데이트하기 위한 메소드
+    // Controller 계층에서 인증된 사용자 세션 정보를 상단 라벨에 업데이트하기 위한 메소드
     public void updateUserInfo(String userName, int currentRentCount, int maxRentCount) {
         userInfoLabel.setText("회원 정보: " + userName + " 님 환영합니다.");
         rentCountLabel.setText("대여 현황: " + currentRentCount + "권 대여 중 / (추가 대여 가능: " + (maxRentCount - currentRentCount) + "권)");
     }
 
-    // 표에서 사용자가 선택한 행의 도서 ID를 반환하는 메소드 (반납 처리용)
+    // 테이블에서 마우스로 선택된 행의 도서 ID를 추출하여 반환 (반납 대상 식별용)
     public String getSelectedBookId() {
         int selectedRow = rentTable.getSelectedRow();
         if (selectedRow == -1) return null;
         return (String) rentTable.getValueAt(selectedRow, 0);
     }
 
-    // Controller가 표에 대여 중인 목록 데이터를 채우거나 원본 모델을 제어하기 위한 메소드
+    // Controller 계층에서 UI 테이블 데이터를 동적 제어하기 위한 모델 반환 메소드
     public DefaultTableModel getTableModel() {
         return tableModel;
     }
 
-    // Controller가 반납 버튼 이벤트를 제어하기 위한 리스너 통로
+    // Controller 계층과 도서 반납 이벤트를 바인딩하기 위한 리스너 등록 메소드
     public void addReturnListener(ActionListener listener) {
         returnButton.addActionListener(e -> {
             String selectedId = getSelectedBookId();
             
-            // 아무것도 선택하지 않고 반납 버튼을 눌렀을 때의 1차 유효성 검증
+            // 반납 대상 도서 선택 여부 검증
             if (selectedId == null) {
                 JOptionPane.showMessageDialog(this, 
                         "반납할 도서를 목록에서 선택해 주세요.", 
@@ -104,12 +104,12 @@ public class MyLibView extends JFrame {
         });
     }
 
-    // 화면 독립 테스트를 위한 임시 메인 메소드
+    // 독립 화면 기능 검증을 위한 임시 테스트 메인 메소드
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             MyLibView view = new MyLibView();
             
-            // 검증 통과 시 작동할 테스트용 임시 리스너 연결
+            // 도서 반납 검증 성공 시 작동할 테스트용 임시 리스너 연결
             view.addReturnListener(e -> {
                 JOptionPane.showMessageDialog(view, "반납 검증 통과! (컨트롤러로 데이터 이동)");
             });
