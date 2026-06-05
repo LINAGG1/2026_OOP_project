@@ -97,9 +97,19 @@ public class Main {
 
                     Book book = new Book(bookId, title, author);
 
-                    adminController.addBook(book);
+                    // 관리자 도서 등록 요청 수행
+                    boolean success = adminController.addBook(book);
 
-                    adminView.getTableModel().addRow(
+                    // 동일 도서 ID 존재 여부 검증
+                    if (!success) {
+                        JOptionPane.showMessageDialog(
+                                adminView,
+                                "이미 존재하는 도서 ID입니다."
+                        );
+                        return;
+                    }
+
+                    adminView.getTableModel().addRow((
                             new Object[]{
                                     book.getBookId(),
                                     book.getTitle(),
