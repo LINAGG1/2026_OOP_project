@@ -135,7 +135,18 @@ public class Main {
                         return;
                     }
 
-                    adminController.removeBook(selectedBookId);
+                    boolean success =
+                        adminController.removeBook(selectedBookId);
+
+                    if (!success) {
+
+                        JOptionPane.showMessageDialog(
+                                adminView,
+                                "대여중인 도서는 삭제할 수 없습니다."
+                        );
+
+                        return;
+                    }
 
                     for (int i = 0; i < adminView.getTableModel().getRowCount(); i++) {
 
