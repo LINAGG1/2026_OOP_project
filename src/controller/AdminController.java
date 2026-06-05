@@ -24,7 +24,19 @@ public class AdminController {
     return true;
 }
 
-    public void removeBook(String bookId) { //도서 ID를 이용해 도서를 삭제
-        repository.removeBook(bookId);
+    public boolean removeBook(String bookId) {
+
+    Book book = repository.findBookById(bookId);
+
+    if (book == null) {
+        return false;
     }
+
+    if (book.isBorrowed()) {
+        return false;
+    }
+
+    repository.removeBook(bookId);
+    return true;
+}
 }
