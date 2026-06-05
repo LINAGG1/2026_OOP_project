@@ -26,17 +26,17 @@ public class AdminController {
 
     public boolean removeBook(String bookId) {
 
-    Book book = repository.findBookById(bookId);
+        Book book = repository.findBookById(bookId);
 
-    if (book == null) {
-        return false;
+        if (book == null) {
+            return false;
+        }
+
+        if (book.isBorrowed()) {
+            return false;
+        }
+
+        repository.removeBook(bookId);
+        return true;
     }
-
-    if (book.isBorrowed()) {
-        return false;
-    }
-
-    repository.removeBook(bookId);
-    return true;
-}
 }
