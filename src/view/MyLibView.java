@@ -7,7 +7,7 @@ import java.awt.event.ActionListener;
 
 /*
 회원 마이페이지 및 도서 반납 화면을 담당하는 View
-대여 현황 목록 시각화(JTable) 및 선택 도서 반납 요청 기능 구현
+JTable 기반 대여 현황 시각화 갱신 은닉화, 세션 데이터 표출 및 이벤트 바인딩 인터페이스 구현
 */
 public class MyLibView extends JFrame {
     private JLabel userInfoLabel;
@@ -69,7 +69,7 @@ public class MyLibView extends JFrame {
         add(bottomPanel, BorderLayout.SOUTH);
     }
 
-    // Controller 계층에서 인증된 사용자 세션 정보를 상단 라벨에 업데이트하기 위한 메소드
+    // Controller 계층에서 인증된 사용자 세션 정보를 상단 라벨에 업데이트하기 위한 데이터 동기화 메소드
     public void updateUserInfo(String userName, int currentRentCount, int maxRentCount) {
         userInfoLabel.setText("회원 정보: " + userName + " 님 환영합니다.");
         rentCountLabel.setText("대여 현황: " + currentRentCount + "권 대여 중 / (추가 대여 가능: " + (maxRentCount - currentRentCount) + "권)");
@@ -82,17 +82,28 @@ public class MyLibView extends JFrame {
         return (String) rentTable.getValueAt(selectedRow, 0);
     }
 
-    // Controller 계층에서 UI 테이블 데이터를 동적 제어하기 위한 모델 반환 메소드
-    public DefaultTableModel getTableModel() {
-        return tableModel;
+    // 외부 계층에서 전달받은 실시간 대여 이력을 테이블 행 데이터로 동적 추가하는 시각화 메소드
+    public void addBorrowRow(String id, String title, String borrowDate, String dueDate) {
+        tableModel.addRow(new Object[]{id, title, borrowDate, dueDate});
     }
 
-    // Controller 계층과 도서 반납 이벤트를 바인딩하기 위한 리스너 등록 메소드
+    // 테이블 내부의 기존 대여 기록 행 데이터를 일괄 소거하는 화면 초기화 메소드
+    public void clearTable() {
+        tableModel.setRowCount(0);
+    }
+
+    // 비즈니스 반납 처리 결과에 따른 알림 메시지 팝업 출력 제어 메소드
+    public void showMessage(String message, String title, boolean isSuccess) {
+        int messageType = isSuccess ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE;
+        JOptionPane.showMessageDialog(this, message, title, messageType);
+    }
+
+    // Controller 계층과 도서 반납 신청 이벤트를 바인딩하기 위한 리스너 등록 메소드
     public void addReturnListener(ActionListener listener) {
         returnButton.addActionListener(e -> {
             String selectedId = getSelectedBookId();
             
-            // 반납 대상 도서 선택 여부 검증
+            // 반납 대상 도서 선택 여부 유효성 1차 검증
             if (selectedId == null) {
                 JOptionPane.showMessageDialog(this, 
                         "반납할 도서를 목록에서 선택해 주세요.", 
@@ -104,14 +115,19 @@ public class MyLibView extends JFrame {
         });
     }
 
-    // 독립 화면 기능 검증을 위한 임시 테스트 메인 메소드
+    // 독립 화면 기능 검증 및 레이아웃 데이터 바인딩 상태 확인용 임시 메인 메소드
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             MyLibView view = new MyLibView();
             
+            // 초기 회원 정보 및 임시 데이터 주입 검증
+            view.updateUserInfo("홍길동", 2, 5);
+            view.addBorrowRow("B01", "객체지향 설계 원칙", "2026-06-01", "2026-06-15");
+            view.addBorrowRow("B02", "자바 Swing 가이드", "2026-06-03", "2026-06-17");
+            
             // 도서 반납 검증 성공 시 작동할 테스트용 임시 리스너 연결
             view.addReturnListener(e -> {
-                JOptionPane.showMessageDialog(view, "반납 검증 통과! (컨트롤러로 데이터 이동)");
+                view.showMessage("반납 승인 처리가 컨트롤러로 이양되었습니다.", "반납 성공", true);
             });
             
             view.setVisible(true);

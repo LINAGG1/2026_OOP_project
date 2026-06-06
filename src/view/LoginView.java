@@ -6,7 +6,7 @@ import java.awt.event.ActionListener;
 
 /*
 사용자 로그인 및 회원가입 화면을 담당하는 View
-GridBagLayout을 활용한 컴포넌트 정렬 및 1차 유효성 검증 수행
+GridBagLayout 기반의 컴포넌트 배치, 입력값 1차 유효성 검증 및 컨트롤러 데이터 전송 인터페이스 구현
 */
 public class LoginView extends JFrame {
     private JLabel titleLabel;
@@ -16,6 +16,12 @@ public class LoginView extends JFrame {
     private JPasswordField pwField;
     private JButton loginButton;
     private JButton registerButton;
+
+    // 회원가입용 팝업 다이얼로그 객체 참조 변수
+    private JDialog registerDialog;
+    private JTextField regIdField;
+    private JPasswordField regPwField;
+    private JTextField regNameField;
 
     public LoginView() {
         // 프레임 기본 초기화 설정
@@ -74,9 +80,9 @@ public class LoginView extends JFrame {
         registerButton.addActionListener(e -> showRegisterDialog());
     }
 
-    // 회원가입을 위한 JDialog 팝업 창 생성 및 유효성 검증
+    // 회원가입을 위한 JDialog 팝업 창 생성 및 1차 데이터 입력 누락 검증
     private void showRegisterDialog() {
-        JDialog registerDialog = new JDialog(this, "회원가입", true);
+        registerDialog = new JDialog(this, "회원가입", true);
         registerDialog.setSize(280, 240);
         registerDialog.setLocationRelativeTo(this);
         registerDialog.setLayout(new BorderLayout());
@@ -87,9 +93,9 @@ public class LoginView extends JFrame {
         dGbc.fill = GridBagConstraints.HORIZONTAL;
         dGbc.insets = new Insets(6, 4, 6, 4);
 
-        JTextField regIdField = new JTextField(12);
-        JPasswordField regPwField = new JPasswordField(12);
-        JTextField regNameField = new JTextField(12);
+        regIdField = new JTextField(12);
+        regPwField = new JPasswordField(12);
+        regNameField = new JTextField(12);
 
         dGbc.gridx = 0; dGbc.gridy = 0; dGbc.weightx = 0;
         p.add(new JLabel("아이디 : ", SwingConstants.RIGHT), dGbc);
@@ -112,7 +118,7 @@ public class LoginView extends JFrame {
         registerDialog.add(p, BorderLayout.CENTER);
         registerDialog.add(submitButton, BorderLayout.SOUTH);
 
-        // 회원가입 데이터 입력값 1차 유효성 검사
+        // 회원가입 데이터 입력값 1차 형식 누락 여부 유효성 검사
         submitButton.addActionListener(ev -> {
             String id = regIdField.getText().trim();
             String pw = new String(regPwField.getPassword()).trim();
@@ -124,34 +130,39 @@ public class LoginView extends JFrame {
                         "입력 오류", 
                         JOptionPane.WARNING_MESSAGE);
             } else {
-                // Main 데이터 전송을 위한 인터페이스 리스너 호출
+                // 비즈니스 로직 및 알림 처리를 임의로 수행하지 않고 Controller 계층 리스너 호출 위임
                 if (registerListener != null) {
                     registerListener.onRegister(id, pw, name);
                 }
-                JOptionPane.showMessageDialog(registerDialog, "회원가입이 완료되었습니다.");
-                registerDialog.dispose();
             }
         });
 
         registerDialog.setVisible(true);
     }
 
-    // 회원가입 완료 데이터를 전달하기 위한 인터페이스
+    // 회원가입 처리가 완료되어 JDialog 창을 동적으로 닫기 위한 제어 메소드
+    public void disposeRegisterDialog() {
+        if (registerDialog != null && registerDialog.isShowing()) {
+            registerDialog.dispose();
+        }
+    }
+
+    // 회원가입 완료 데이터를 Controller 계층으로 라우팅하기 위한 인터페이스 정의
     public interface RegisterListener {
         void onRegister(String id, String pw, String name);
     }
     private RegisterListener registerListener;
 
-    // Main 컴포넌트와 회원가입 이벤트를 바인딩하기 위한 리스너 등록 메소드
+    // Controller 계층과 회원가입 서브밋 이벤트를 바인딩하기 위한 리스너 등록 메소드
     public void addRegisterListener(RegisterListener listener) {
         this.registerListener = listener;
     }
 
-    // Controller 계층에서 사용자가 입력한 아이디와 비밀번호를 인출하기 위한 메소드
+    // Controller 계층에서 사용자가 입력한 아이디와 비밀번호 데이터를 인출하기 위한 Getter 메소드
     public String getIdInput() { return idField.getText().trim(); }
     public String getPwInput() { return new String(pwField.getPassword()).trim(); }
     
-    // 로그인 버튼 클릭 시 자체 유효성 검사 및 Controller 리스너 연결
+    // 로그인 버튼 클릭 시 입력 컴포넌트 포커싱 유효성 검사 및 Controller 리스너 연동
     public void addLoginListener(ActionListener listener) {
         loginButton.addActionListener(e -> {
             String id = getIdInput();
@@ -175,14 +186,14 @@ public class LoginView extends JFrame {
         });
     }
 
-    // 독립 화면 기능 검증을 위한 임시 테스트 메인 메소드
+    // 독립 화면 단위 테스트 및 기능 검증을 위한 임시 엔트리포인트 메소드
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             LoginView view = new LoginView();
             
-            // 로그인 데이터 검증 성공 시 작동할 테스트용 임시 리스너 연결
+            // 로그인 유효성 검증 통과 여부 식별용 임시 테스트 리스너 연동
             view.addLoginListener(e -> {
-                JOptionPane.showMessageDialog(view, "로그인 검증 성공! (아이디/비밀번호 모두 입력됨)");
+                JOptionPane.showMessageDialog(view, "로그인 입력 검증 통과 확인 (컨트롤러 바인딩 준비 완료)");
             });
             
             view.setVisible(true);

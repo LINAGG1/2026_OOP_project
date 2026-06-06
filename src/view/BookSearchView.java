@@ -7,7 +7,7 @@ import java.awt.event.ActionListener;
 
 /*
 메인 도서 검색 및 대여 신청 화면을 담당하는 View
-JComboBox를 통한 조건별 검색, JTable 기반의 도서 목록 시각화 및 로그아웃 기능 구현
+JComboBox를 통한 조건별 검색, JTable 기반 도서 데이터 시각화 갱신 은닉화 및 이벤트 바인딩 인터페이스 구현
 */
 public class BookSearchView extends JFrame {
     private JComboBox<String> searchCategoryBox;
@@ -17,8 +17,6 @@ public class BookSearchView extends JFrame {
     private DefaultTableModel tableModel;
     private JButton rentButton;
     private JButton myPageButton;
-
-    // 세션 종료 처리를 위한 로그아웃 버튼 컴포넌트 선언
     private JButton logoutButton;
 
     public BookSearchView() {
@@ -85,12 +83,12 @@ public class BookSearchView extends JFrame {
         add(bottomPanel, BorderLayout.SOUTH);
     }
 
-    // Controller 계층에서 선택된 검색 카테고리 항목을 인출하기 위한 메소드
+    // Controller 계층에서 선택된 검색 카테고리 항목을 인출하기 위한 Getter 메소드
     public String getSearchCategory() {
         return (String) searchCategoryBox.getSelectedItem();
     }
 
-    // Controller 계층에서 사용자가 입력한 검색어를 인출하기 위한 메소드
+    // Controller 계층에서 사용자가 입력한 검색어를 인출하기 위한 Getter 메소드
     public String getSearchKeyword() {
         return searchField.getText().trim();
     }
@@ -102,9 +100,21 @@ public class BookSearchView extends JFrame {
         return (String) bookTable.getValueAt(selectedRow, 0);
     }
 
-    // Controller 계층에서 UI 테이블 데이터를 동적 제어하기 위한 모델 반환 메소드
-    public DefaultTableModel getTableModel() {
-        return tableModel;
+    // 외부 계층에서 전달받은 도서 데이터를 기반으로 검색 결과 행을 추가하는 시각화 메소드
+    public void addBookRow(String id, String title, String author, boolean isBorrowed) {
+        String status = isBorrowed ? "대여중" : "대여가능";
+        tableModel.addRow(new Object[]{id, title, author, status});
+    }
+
+    // 테이블 내부의 기존 전체 검색 결과 데이터를 일괄 소거하는 화면 갱신 메소드
+    public void clearTable() {
+        tableModel.setRowCount(0);
+    }
+
+    // 비즈니스 렌탈 처리 결과에 따른 알림 메시지 팝업 출력 제어 메소드
+    public void showMessage(String message, String title, boolean isSuccess) {
+        int messageType = isSuccess ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE;
+        JOptionPane.showMessageDialog(this, message, title, messageType);
     }
 
     // Controller 계층과 도서 검색 이벤트를 바인딩하기 위한 리스너 등록 메소드
@@ -112,17 +122,17 @@ public class BookSearchView extends JFrame {
         searchButton.addActionListener(listener);
     }
 
-    // Main 컴포넌트와 마이페이지 전환 이벤트를 바인딩하기 위한 리스너 등록 메소드
+    // Controller 계층과 마이페이지 화면 전환 이벤트를 바인딩하기 위한 리스너 등록 메소드
     public void addMyPageListener(ActionListener listener) {
         myPageButton.addActionListener(listener);
     }
 
-    // Controller 계층과 도서 대여 이벤트를 바인딩하기 위한 리스너 등록 메소드
+    // Controller 계층과 도서 대여 신청 이벤트를 바인딩하기 위한 리스너 등록 메소드
     public void addRentListener(ActionListener listener) {
         rentButton.addActionListener(e -> {
             String selectedId = getSelectedBookId();
             
-            // 대여 대상 도서 선택 여부 유효성 검증
+            // 대여 대상 도서 선택 여부 유효성 1차 검증
             if (selectedId == null) {
                 JOptionPane.showMessageDialog(this, 
                         "대여할 도서를 목록에서 선택해 주세요.", 
@@ -134,7 +144,7 @@ public class BookSearchView extends JFrame {
         });
     }
 
-    // Main 계층에서 로그아웃 기능을 제어하기 위한 리스너 등록 통로 메소드
+    // Controller 계층에서 로그아웃 세션 처리를 바인딩하기 위한 리스너 등록 통로 메소드
     public void addLogoutListener(ActionListener listener) {
         logoutButton.addActionListener(listener);
     }
