@@ -18,7 +18,6 @@ public class AdminController {
         this.repository = repository;
         this.adminView = adminView;
         
-        // 💡 컨트롤러가 켜질 때 기존 저장된 도서 목록을 화면 테이블에 로드합니다.
         loadExistingBooks();
         
         // 컨트롤러 기동 시 뷰의 이벤트 리스너 일괄 초기화 및 바인딩
@@ -27,10 +26,6 @@ public class AdminController {
 
     // 저장소에서 기존 도서 데이터를 가져와 뷰에 삽입하는 메소드
     private void loadExistingBooks() {
-        // 💡 [수정] getTableModel()을 쓰지 않고, AdminView에 구현된 addBookRow를 바로 활용합니다.
-        // 만약 뷰 내부에 테이블을 전체 초기화(지우기)하는 메소드(예: clearTable())가 따로 있다면 
-        // 여기에 adminView.clearTable(); 같은 형태로 호출해주셔도 좋습니다.
-
         // 저장소의 모든 도서를 순회하며 뷰에 추가
         for (Book book : repository.getBooks()) {
             adminView.addBookRow(
