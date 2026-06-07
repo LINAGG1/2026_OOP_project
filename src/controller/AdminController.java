@@ -55,10 +55,10 @@ public class AdminController {
             Book book = new Book(bookId, title, author);
             boolean success = addBook(book);
 
-            if (success) {
+            if (success) { // 등록 성공시 관리자 화면의 도서 목록 테이블을 즉시 갱신
                 // 뷰 내부로 캡슐화된 행 추가 메소드 호출을 통한 UI 동기화
                 adminView.addBookRow(bookId, title, author, false);
-                adminView.clearInputFields();
+                adminView.clearInputFields(); // 다음 도서 등록을 위해 입력 필드를 초기화
                 adminView.showMessage("도서가 성공적으로 등록되었습니다.", "등록 성공", true);
             } else {
                 adminView.showMessage("이미 존재하는 도서 ID입니다.", "등록 오류", false);
@@ -73,7 +73,7 @@ public class AdminController {
             // 비즈니스 삭제 로직 검증 호출
             boolean success = removeBook(selectedBookId);
 
-            if (success) {
+            if (success) { // 삭제 성공 시 화면에서도 선택한 도서 행을 제거하여 데이터와 동기화
                 // 뷰 내부로 캡슐화된 행 제거 메소드 호출을 통한 UI 동기화
                 adminView.removeSelectedRow();
                 adminView.showMessage("선택한 도서가 성공적으로 삭제되었습니다.", "삭제 성공", true);
@@ -88,7 +88,7 @@ public class AdminController {
         if (repository.findBookById(book.getBookId()) != null) {
             return false;
         }
-        repository.addBook(book);
+        repository.addBook(book); // 중복이 아닌 경우 저장소에 신규 도서를 추가
         return true;
     }
 
@@ -104,7 +104,7 @@ public class AdminController {
             return false;
         }
 
-        repository.removeBook(bookId);
+        repository.removeBook(bookId); // 삭제 조건을 만족하면 저장소에서 해당 도서를 제거
         return true;
     }
 }
