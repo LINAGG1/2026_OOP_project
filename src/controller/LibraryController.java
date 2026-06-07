@@ -33,8 +33,8 @@ public class LibraryController {
 
     // 시스템 시동 시 보유 중인 전체 도서 목록을 검색 뷰의 테이블에 초기화 바인딩하는 메소드
     private void loadInitialData() {
-        searchView.clearTable();
-        for (Book book : repository.getBooks()) {
+        searchView.clearTable(); // 최신 도서 목록을 다시 출력하기 위해 기존 검색 결과를 초기화
+        for (Book book : repository.getBooks()) { // 저장소의 전체 도서 목록을 조회하여 화면 테이블에 출력
             searchView.addBookRow(book.getBookId(), book.getTitle(), book.getAuthor(), book.isBorrowed());
         }
     }
@@ -83,7 +83,7 @@ public class LibraryController {
             boolean success = borrowBook(currentUser.getUserId(), selectedBookId);
 
             if (success) {
-                // 실시간 대여 수량 반영 및 메인 검색 테이블 상태 동동기화
+                // 실시간 대여 수량 반영 및 메인 검색 테이블 상태 동기화
                 myLibView.updateUserInfo(currentUser.getName(), currentUser.getCurrentBorrowCount(), 5);
                 loadInitialData();
                 searchView.showMessage("선택하신 도서의 대여 처리가 완료되었습니다.", "대여 성공", true);
