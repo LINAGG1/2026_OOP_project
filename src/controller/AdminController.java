@@ -5,28 +5,28 @@ import model.BookRepository;
 import view.AdminView;
 
 /*
-관리자 전용 비즈니스 로직 제어 및 화면 연동을 담당하는 Controller
-의존성 주입을 통한 Model 및 View 제어, 도서 추가·삭제 이벤트 핸들링 및 데이터 동기화 수행
+관리자 화면의 기능을 처리하는 컨트롤러
+도서 등록, 삭제 기능을 담당한다.
 */
 public class AdminController {
 
-    private BookRepository repository; // 도서 데이터를 관리하는 Repository 객체 참조 변수
-    private AdminView adminView;       // 관리자 전용 GUI 화면 객체 참조 변수
+    private BookRepository repository; // 도서 정보 저장소
+    private AdminView adminView;       // 관리자 화면
 
-    // Repository 및 View 객체를 생성자 파라미터로 주입받아 초기화 및 리스너 바인딩 기동
+    // 관리자 화면
     public AdminController(BookRepository repository, AdminView adminView) {
         this.repository = repository;
         this.adminView = adminView;
         
         loadExistingBooks();
         
-        // 컨트롤러 기동 시 뷰의 이벤트 리스너 일괄 초기화 및 바인딩
+        // 화면 이벤트 등록
         initListeners();
     }
 
-    // 저장소에서 기존 도서 데이터를 가져와 뷰에 삽입하는 메소드
+    // 저장된 도서 목록을 화면에 표시
     private void loadExistingBooks() {
-        // 저장소의 모든 도서를 순회하며 뷰에 추가
+        //도서 목록 출력
         for (Book book : repository.getBooks()) {
             adminView.addBookRow(
                 book.getBookId(),
@@ -37,39 +37,39 @@ public class AdminController {
         }
     }
 
-    // 기존 Main.java에 분산되어 있던 관리자 기능 이벤트 리스너 수거 및 통합 바인딩 메소드
+    // 관리자 화면의 버튼 이벤트 등록
     private void initListeners() {
         
-        // 신규 도서 등록 버튼 클릭 이벤트 처리 및 데이터 모델 동기화
+        // 도서 등록 처리
         adminView.addInsertListener(e -> {
             String bookId = adminView.getBookIdInput();
             String title = adminView.getBookTitleInput();
             String author = adminView.getBookAuthorInput();
 
-            // 도서 객체 생성 및 비즈니스 등록 로직 검증 호출
+            // 등록할 도서 객체 생성
             Book book = new Book(bookId, title, author);
             boolean success = addBook(book);
 
-            if (success) { // 등록 성공시 관리자 화면의 도서 목록 테이블을 즉시 갱신
-                // 뷰 내부로 캡슐화된 행 추가 메소드 호출을 통한 UI 동기화
+            if (success) { // 등록 성공시 관리자 화면의 도서 목록 테이블 갱신
+                // 화면에 새 도서 추가
                 adminView.addBookRow(bookId, title, author, false);
-                adminView.clearInputFields(); // 다음 도서 등록을 위해 입력 필드를 초기화
+                adminView.clearInputFields(); // 입력 필드 초기화
                 adminView.showMessage("도서가 성공적으로 등록되었습니다.", "등록 성공", true);
             } else {
                 adminView.showMessage("이미 존재하는 도서 ID입니다.", "등록 오류", false);
             }
         });
 
-        // 기존 도서 데이터 영구 삭제 버튼 클릭 이벤트 처리 및 UI 동기화
+        // 도서 삭제 처리
         adminView.addDeleteListener(e -> {
             String selectedBookId = adminView.getSelectedBookId();
             if (selectedBookId == null) return;
 
-            // 비즈니스 삭제 로직 검증 호출
+            // 선택한 도서 삭제
             boolean success = removeBook(selectedBookId);
 
-            if (success) { // 삭제 성공 시 화면에서도 선택한 도서 행을 제거하여 데이터와 동기화
-                // 뷰 내부로 캡슐화된 행 제거 메소드 호출을 통한 UI 동기화
+            if (success) { 
+                // 화면에서도 삭제
                 adminView.removeSelectedRow();
                 adminView.showMessage("선택한 도서가 성공적으로 삭제되었습니다.", "삭제 성공", true);
             } else {
@@ -78,7 +78,7 @@ public class AdminController {
         });
     }
 
-    // 신규 도서 등록 중복 검증 및 저장소 추가 비즈니스 로직
+    // 도서 등록
     public boolean addBook(Book book) {
         if (repository.findBookById(book.getBookId()) != null) {
             return false;
@@ -87,7 +87,7 @@ public class AdminController {
         return true;
     }
 
-    // 대상 도서 존재 여부 및 대여 상태 검증 후 영구 삭제 비즈니스 로직
+    // 도서 삭제
     public boolean removeBook(String bookId) {
         Book book = repository.findBookById(bookId);
 
