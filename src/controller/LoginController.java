@@ -48,10 +48,10 @@ public class LoginController {
             String id = loginView.getIdInput();
             String pw = loginView.getPwInput();
 
-            // 저장소 객체를 통한 계정 정보 인증 요청
+            // 입력한 계정 정보를 이용하여 로그인 인증 수행
             User user = login(id, pw);
 
-            if (user == null) {
+            if (user == null) { // 인증 실패 시 로그인 오류 메시지 출력
                 JOptionPane.showMessageDialog(loginView, "아이디 또는 비밀번호가 올바르지 않습니다.", "로그인 오류", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -60,13 +60,13 @@ public class LoginController {
             
             // 로그인 완료 시 인증 창 시각화 종료 및 권한별 메인 세션 라우팅 실행
             loginView.setVisible(false);
-            executeSession(user);
+            executeSession(user); // 로그인 성공 후 사용자 권한에 맞는 화면으로 전환
         });
     }
 
     // 인증된 사용자 권한(ADMIN / USER) 판별에 따른 메인 프레임 동적 기동 및 제어권 이양 메소드
     private void executeSession(User user) {
-        if (isAdmin(user)) {
+        if (isAdmin(user)) { // 관리자 여부를 판별하여 관리자 또는 일반 사용자 화면으로 분기
             AdminView adminView = new AdminView();
             // 관리자 전용 컨트롤러를 생성하여 뷰와 저장소 제어권을 완전히 위임
             new AdminController(repository, adminView);
@@ -76,7 +76,7 @@ public class LoginController {
                 adminView.dispose();
                 loginView.setVisible(true);
             });
-            adminView.setVisible(true);
+            adminView.setVisible(true); // 관리자 메인 화면 실행
         } else {
             BookSearchView searchView = new BookSearchView();
             MyLibView myLibView = new MyLibView();
@@ -95,11 +95,11 @@ public class LoginController {
 
     // 저장소 엔티티를 통한 로그인 인증 요청 처리 및 결과 유저 객체 반환 비즈니스 로직
     public User login(String userId, String password) { 
-        return repository.login(userId, password);
+        return repository.login(userId, password); // 저장소에 로그인 인증을 요청하고 결과를 반환
     }
     
     // 유저 객체의 관리자 권한 보유 여부 검증 비즈니스 로직
     public boolean isAdmin(User user) { 
-        return user != null && user.isAdmin();
+        return user != null && user.isAdmin(); // 로그인한 사용자가 관리자 권한을 보유하고 있는지 확인
     }
 }
